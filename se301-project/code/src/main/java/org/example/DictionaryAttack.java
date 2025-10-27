@@ -12,7 +12,11 @@ import java.nio.charset.StandardCharsets;
 public class DictionaryAttack {
 
     static LinkedList<CrackTask> taskQueue = new LinkedList<>();
-    static HashMap<String, User> users = new HashMap<>();
+
+    //Removed this static map for UserLoader.java to work correctly
+    //static HashMap<String, User> users = new HashMap<>();
+
+    static Map<String, User> users; // leave uninitialized
     static ArrayList<String> cracked = new ArrayList<>();
     static HashMap<String, String> reverseLookupCache = new HashMap<>();
     static int passwordsFound = 0;
@@ -38,7 +42,10 @@ public class DictionaryAttack {
 
         long start = System.currentTimeMillis();
         List<String> allPasswords = loadDictionary(dictionaryPath);
-        loadUsers(usersPath);
+
+        users = new UserLoader(Paths.get(args[0])).loadUsers();
+
+        //loadUsers(usersPath);
 
         for (User user : users.values()) {
 
@@ -114,17 +121,17 @@ public class DictionaryAttack {
         return allWords;
     }
 
-    static void loadUsers(String filename) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filename));
-        for (String line : lines) {
-            String[] parts = line.split(",");
-            if (parts.length >= 2) {
-                String username = parts[0];
-                String hashedPassword = parts[1];
-                users.put(username, new User(username, hashedPassword));
-            }
-        }
-    }
+//    static void loadUsers(String filename) throws IOException {
+//        List<String> lines = Files.readAllLines(Paths.get(filename));
+//        for (String line : lines) {
+//            String[] parts = line.split(",");
+//            if (parts.length >= 2) {
+//                String username = parts[0];
+//                String hashedPassword = parts[1];
+//                users.put(username, new User(username, hashedPassword));
+//            }
+//        }
+//    }
 
     static String sha256(String input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
