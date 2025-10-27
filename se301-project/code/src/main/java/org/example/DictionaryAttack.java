@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.nio.charset.StandardCharsets;
 
+
 public class DictionaryAttack {
 
     static LinkedList<CrackTask> taskQueue = new LinkedList<>();
@@ -40,8 +41,9 @@ public class DictionaryAttack {
         loadUsers(usersPath);
 
         for (User user : users.values()) {
+
             for (String password : allPasswords) {
-                taskQueue.add(new CrackTask(user.username, password));
+                taskQueue.add(new CrackTask(user.getUsername(), password));
             }
         }
 
@@ -88,11 +90,11 @@ public class DictionaryAttack {
 
             // Iterate through all users and write the details of the cracked ones
             for (User user : users.values()) {
-                if (user.isFound) {
+                if (user.isFound()) {
                     String line = String.format("%s,%s,%s\n",
-                            user.username,
-                            user.hashedPassword,
-                            user.foundPassword);
+                            user.getUsername(),
+                            user.getHashedPassword(),
+                            user.getFoundPassword());
                     writer.write(line);
                 }
             }
@@ -145,17 +147,16 @@ public class DictionaryAttack {
 
         public void execute() {
             User user = users.get(username);
-            if (user == null || user.isFound) return;
+            if (user == null || user.isFound()) return;
 
             try {
                 String hash = sha256(password);
                 hashesComputed++;
                 reverseLookupCache.put(password, hash);
 
-                if (hash.equals(user.hashedPassword)) {
+                if (hash.equals(user.getHashedPassword())) {
                     cracked.add(username + ": " + password);
-                    user.isFound = true;
-                    user.foundPassword = password;
+                    user.markFound(password);
                     passwordsFound++;
                 }
 
@@ -165,16 +166,17 @@ public class DictionaryAttack {
         }
     }
 
-    static class User {
-        String username;
-        String hashedPassword;
-        boolean isFound = false;
-        String foundPassword = null;
 
-        public User(String username, String hashedPassword) {
-            this.username = username;
-            this.hashedPassword = hashedPassword;
-        }
-    }
+//    static class User {
+//        String username;
+//        String hashedPassword;
+//        boolean isFound = false;
+//        String foundPassword = null;
+//
+//        public User(String username, String hashedPassword) {
+//            this.username = username;
+//            this.hashedPassword = hashedPassword;
+//        }
+//    }
 }
 
