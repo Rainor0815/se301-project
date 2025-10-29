@@ -22,6 +22,9 @@ public class DictionaryAttack {
     static int passwordsFound = 0;
     static int hashesComputed = 0;
 
+    private static volatile int SIDE_EFFECT_SINK = 0;
+    private static final int NUM_ITERATIONS = 1_000_000;
+
     public static void main(String[] args) throws Exception {
 
         // Check if both file paths are provided as command-line arguments
@@ -133,6 +136,8 @@ public class DictionaryAttack {
 //        }
 //    }
 
+    // Old sha256 method, comment this out later on! Only use to test if the code compiles.
+
     static String sha256(String input) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
@@ -142,6 +147,26 @@ public class DictionaryAttack {
         }
         return hex.toString();
     }
+
+
+    // Updated sha256 method, uncomment this when you are performance testing!
+//    static String sha256(String input) throws NoSuchAlgorithmException {
+//        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+//        byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
+//
+//        // Intentional slowdown work
+//        MessageDigest md = MessageDigest.getInstance("SHA-256");
+//        for (int i = 0; i < NUM_ITERATIONS; i++) {
+//            byte[] d = md.digest(("waste" + i).getBytes(StandardCharsets.UTF_8));
+//            SIDE_EFFECT_SINK ^= d[0];
+//        }
+//
+//        StringBuilder hex = new StringBuilder();
+//        for (byte b : hash) {
+//            hex.append(String.format("%02x", b));
+//        }
+//        return hex.toString();
+//    }
 
     static class CrackTask {
         String username;
