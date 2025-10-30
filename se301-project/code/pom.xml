@@ -16,6 +16,7 @@
     </properties>
 
     <build>
+        <finalName>run</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -26,6 +27,7 @@
                         <!-- This tells Maven to create a JAR with all dependencies included -->
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
                             <!-- This specifies the main class that will be executed when the JAR is run -->
