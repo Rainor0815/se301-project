@@ -25,6 +25,15 @@ public class DictionaryAttack {
         Map<String, List<String>> hashToUsers = thm.getHashToUsernames();
         List<String> dictionary = DictionaryLoader.loadDictionary(dictPath);
 
+        // Print Corretto/provider status (helps verify native acceleration)
+        System.out.println("[INFO] Corretto available: " + HashUtil.isCorrettoAvailable());
+        try {
+            String prov = java.security.MessageDigest.getInstance("SHA-256").getProvider().getName();
+            System.out.println("[INFO] SHA-256 provider: " + prov);
+        } catch (Throwable t) {
+            System.out.println("[WARN] Could not determine SHA-256 provider: " + t.getMessage());
+        }
+
         int threads = Runtime.getRuntime().availableProcessors();
         CrackingEngine engine = new CrackingEngine(targetHashSet, hashToUsers, dictionary, threads);
 

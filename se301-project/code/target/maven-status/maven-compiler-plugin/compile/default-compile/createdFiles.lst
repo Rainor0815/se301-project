@@ -1,0 +1,6 @@
+org\example\DictionaryAttack.class
+org\example\TargetHashManager.class
+org\example\CrackingEngine.class
+org\example\DictionaryLoader.class
+org\example\HashUtil.class
+org\example\StatusReporter.class

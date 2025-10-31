@@ -3,12 +3,40 @@ package org.example;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
 
 /**
  * Small helper to compute sha256 hex (lower-case).
  */
 public final class HashUtil {
     private HashUtil() {}
+
+    private static final boolean CORRETTO_AVAILABLE;
+    static {
+        boolean ok = false;
+        String[] candidates = new String[] {
+                "software.amazon.cryptools.AmazonCorrettoCryptoProvider",
+                "com.amazon.corretto.crypto.provider.AmazonCorrettoCryptoProvider"
+        };
+        for (String cls : candidates) {
+            try {
+                Class<?> providerClass = Class.forName(cls);
+                Object inst = providerClass.getDeclaredConstructor().newInstance();
+                if (inst instanceof Provider) {
+                    Security.insertProviderAt((Provider) inst, 1);
+                    System.out.println("[INFO] Registered crypto provider: " + ((Provider) inst).getName());
+                    ok = true;
+                    break;
+                }
+            } catch (ClassNotFoundException ignored) {
+                // try next candidate
+            } catch (Throwable t) {
+                System.err.println("[WARN] Failed to register provider " + cls + ": " + t);
+            }
+        }
+        CORRETTO_AVAILABLE = ok;
+    }
 
     private static final ThreadLocal<MessageDigest> SHA256_TL =
             ThreadLocal.withInitial(() -> {
@@ -33,5 +61,10 @@ public final class HashUtil {
             dst[j++] = HEX[v & 0x0F];
         }
         return new String(dst);
+    }
+
+    /** Return true if a Corretto-like provider was registered at startup. */
+    public static boolean isCorrettoAvailable() {
+        return CORRETTO_AVAILABLE;
     }
 }
